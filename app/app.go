@@ -7,7 +7,9 @@ import(
 
   "github.com/sampila/jsonconfig/jsonconfig"
   "github.com/sampila/go-receive-file/router"
+  "github.com/sampila/etalasee-merchant-api/middlewares"
   "github.com/NYTimes/gziphandler"
+  "github.com/jpillora/ipfilter"
   "github.com/sampila/go-utils/logger"
 )
 
@@ -23,8 +25,13 @@ func StartApplication(){
 
   mapUrls()
 
+  ipFltr := ipfilter.New(ipfilter.Options{
+    AllowedIPs: config.WhitelistIP,
+    BlockByDefault: true,
+  })
+
   server := new(http.Server)
-	server.Handler = gziphandler.GzipHandler(r)
+	server.Handler = gziphandler.GzipHandler(middlewares.IPfilterMiddleware(r, ipFltr))
 	server.ReadTimeout = config.Server.ReadTimeout * time.Second
 	server.WriteTimeout = config.Server.WriteTimeout * time.Second
 	server.Addr = fmt.Sprintf(":%v", config.Server.HTTPPort)

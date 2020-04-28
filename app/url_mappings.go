@@ -4,6 +4,7 @@ import(
   "github.com/sampila/go-receive-file/middlewares"
   "github.com/sampila/go-receive-file/controllers/ping"
   "github.com/sampila/go-receive-file/controllers/receive_file"
+  "github.com/sampila/go-receive-file/controllers/unzip_file"
 
 )
 
@@ -13,6 +14,7 @@ func mapUrls(){
   //v1 := r.Group("/v1",middlewares.AuthMiddleware,middlewares.ApiMiddleware)
   v1 := r.Group("/v1",middlewares.ApiMiddleware)
   //v1.GET("/file/:code",file_storage.Get)
-  v1.POST("/receive",receive_file.Post)
+  v1.POST("/receive", receive_file.Post)
+  v1.POST("/unzip", unzip_file.Post)
   //v1.DELETE("/file/:id",file_storage.Delete)
 }

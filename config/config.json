@@ -29,5 +29,5 @@
         "Port": 4000,
         "Prefix": "/"
     },
-    "WhitelistIP" : ["0.0.0.0/8", "::1"]
+    "WhitelistIP" : ["::1"]
 }

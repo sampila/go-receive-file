@@ -3,12 +3,14 @@ package receive_file
 import(
   "os"
   "io"
-  "io/ioutil"
-  //"fmt"
+  //"io"
+  //"io/ioutil"
+  "fmt"
   "net/http"
   //"strconv"
-  "archive/zip"
-  "bytes"
+  //"archive/zip"
+  //"bytes"
+  "path/filepath"
 
   "github.com/julienschmidt/httprouter"
   "github.com/mholt/binding"
@@ -31,42 +33,49 @@ func Post(w http.ResponseWriter, r *http.Request, p httprouter.Params){
   }
 
   reqValid, msgErr := validator_utils.ValidateInputs(req)
-  if reqValid == false {
+  if !reqValid {
     logger.Info("invalid parameter")
     restErr := rest_errors.NewBadRequestError(msgErr)
     http_utils.RespondError(w, restErr)
     return
   }
 
-  body, err := ioutil.ReadAll(r.Body)
-  if err != nil {
-      // err
+  var fullPath string
+
+  path := fmt.Sprintf("%s", req.TargetPath)
+  if _, err := os.Stat(path); os.IsNotExist(err) {
+    os.MkdirAll(path, 0755)
   }
 
-  fr, err := zip.NewReader(bytes.NewReader(body), r.ContentLength)
-  if err != nil {
-      // err
-  }
-  for _, zf := range fr.File {
-      dst, err := os.Create(zf.Name)
-      if err != nil {
-          // err
-      }
-      defer dst.Close()
-      src, err := zf.Open()
-      if err != nil {
-          // err
-      }
-      defer src.Close()
+  if req.File != nil {
+    var handler io.ReadCloser
+    var err error
+    filename := req.File.Filename
+    if handler, err = req.File.Open();err == nil {
 
-      io.Copy(dst, src)
+      fileLocation := filepath.Join(path, filename)
+      targetFile, err := os.OpenFile(fileLocation, os.O_WRONLY|os.O_CREATE, 0666)
+      defer targetFile.Close()
+      if err != nil {
+        logger.Info("target file not found")
+        restErr := rest_errors.NewBadRequestError(err.Error())
+        http_utils.RespondError(w, restErr)
+      }
+      if _, err := io.Copy(targetFile, handler); err != nil {
+        logger.Info("copy file error")
+        restErr := rest_errors.NewBadRequestError(err.Error())
+        http_utils.RespondError(w, restErr)
+      }
+
+      fullPath = fileLocation
+    }
   }
 
   res := rest_ok.NewRestOK("file received",
                             http.StatusOK,
                             false,
                             "",
-                            "OK",
+                            fullPath,
                             1)
   http_utils.RespondJson(w, http.StatusCreated, res)
 }

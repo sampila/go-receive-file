@@ -12,7 +12,7 @@ type ReceiveFileForm struct{
   StoreName  string                `json:"store_name" validate:"required"`
   TargetPath string                `json:"target_path" validate:"required"`
   Type       string                `json:"type" validate:"required"`
-	File      *multipart.FileHeader `json:"file" validate:"required"`
+	ThemeFile  *multipart.FileHeader `json:"theme_file" validate:"required"`
 }
 
 func (f *ReceiveFileForm) FieldMap(r *http.Request) binding.FieldMap {
@@ -21,6 +21,6 @@ func (f *ReceiveFileForm) FieldMap(r *http.Request) binding.FieldMap {
 		&f.StoreName: "store_name",
 		&f.TargetPath: "target_path",
 		&f.Type: "type",
-		&f.File: "file",
+		&f.ThemeFile: "theme_file",
 	}
 }

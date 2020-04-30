@@ -7,7 +7,7 @@ import(
 
   "github.com/sampila/jsonconfig/jsonconfig"
   "github.com/sampila/go-receive-file/router"
-  "github.com/sampila/etalasee-merchant-api/middlewares"
+  "github.com/sampila/go-receive-file/middlewares"
   "github.com/NYTimes/gziphandler"
   "github.com/jpillora/ipfilter"
   "github.com/sampila/go-utils/logger"

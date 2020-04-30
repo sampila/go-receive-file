@@ -11,6 +11,7 @@ import(
   //"archive/zip"
   //"bytes"
   "path/filepath"
+  "log"
 
   "github.com/julienschmidt/httprouter"
   "github.com/mholt/binding"
@@ -47,24 +48,28 @@ func Post(w http.ResponseWriter, r *http.Request, p httprouter.Params){
     os.MkdirAll(path, 0755)
   }
 
-  if req.File != nil {
+  if req.ThemeFile != nil {
     var handler io.ReadCloser
     var err error
-    filename := req.File.Filename
-    if handler, err = req.File.Open();err == nil {
+    filename := req.ThemeFile.Filename
+    if handler, err = req.ThemeFile.Open();err == nil {
 
-      fileLocation := filepath.Join(path, filename)
+      fileLocation := filepath.Join(path, filepath.Base(filename))
+      log.Println(fileLocation)
       targetFile, err := os.OpenFile(fileLocation, os.O_WRONLY|os.O_CREATE, 0666)
       defer targetFile.Close()
       if err != nil {
         logger.Info("target file not found")
         restErr := rest_errors.NewBadRequestError(err.Error())
         http_utils.RespondError(w, restErr)
+        return
       }
+
       if _, err := io.Copy(targetFile, handler); err != nil {
         logger.Info("copy file error")
         restErr := rest_errors.NewBadRequestError(err.Error())
         http_utils.RespondError(w, restErr)
+        return
       }
 
       fullPath = fileLocation

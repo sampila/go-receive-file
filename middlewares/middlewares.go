@@ -20,6 +20,7 @@ func IPfilterMiddleware(next http.Handler, ipf *ipfilter.IPFilter) *ipFilter {
 
 func (m *ipFilter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	//use remote addr as it cant be spoofed
+  log.Printf("msg:Logging, Method: %s, URI: %s\n", r.Method, r.RequestURI)
   ip := realip.FromRequest(r)
 	//show simple forbidden text
   log.Printf(ip)

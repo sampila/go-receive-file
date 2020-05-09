@@ -29,5 +29,5 @@
         "Port": 4000,
         "Prefix": "/"
     },
-    "WhitelistIP" : ["::1"]
+    "WhitelistIP" : ["::1","127.0.0.1"]
 }
